@@ -1,5 +1,7 @@
 # ok i used ai for readme
 
+Contact on Telegram or Discord : `switch3301`
+
 reverse-engineered xal token generator for epic games talon sdk.
 
 xal is the browser fingerprint token sent during epic login. it collects 15 fingerprint fields, shuffles them with mt19937, hashes with fnv-1a, compresses with zlib, encrypts with chacha20, and base64 encodes the result.
