@@ -1,4 +1,4 @@
-# ok so i used ai for readme
+# fire
 
 Contact on Telegram or Discord : `switch3301`
 

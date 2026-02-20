@@ -371,6 +371,7 @@ function findFnReturning(typeName, arrLen) {
   traverse(cleanAst, { noScope: true, VariableDeclarator(p) {
     if (match) return p.stop()
     let init = p.node.init
+    if (t.isSequenceExpression(init)) init = init.expressions[init.expressions.length - 1]
     if (!t.isFunctionExpression(init) && !t.isArrowFunctionExpression(init)) return
     let body = init.body
     if (!t.isBlockStatement(body)) return
