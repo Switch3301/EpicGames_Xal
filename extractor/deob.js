@@ -366,26 +366,37 @@ console.log(out + " | " + ch + " changes")
 let cleanAst = parser.parse(cleanCode, { sourceType: "script", allowReturnOutsideFunction: true })
 let config = {}
 
+function checkFnBody(node, typeName, arrLen) {
+  if (!t.isBlockStatement(node.body)) return false
+  for (let stmt of node.body.body) {
+    if (!t.isReturnStatement(stmt) || !stmt.argument) continue
+    let arg = stmt.argument
+    if (!t.isNewExpression(arg)) continue
+    if (!t.isIdentifier(arg.callee, { name: typeName })) continue
+    if (arg.arguments.length !== 1 || !t.isArrayExpression(arg.arguments[0])) continue
+    if (arg.arguments[0].elements.length === arrLen) return true
+  }
+  return false
+}
+
 function findFnReturning(typeName, arrLen) {
   let match
-  traverse(cleanAst, { noScope: true, VariableDeclarator(p) {
-    if (match) return p.stop()
-    let init = p.node.init
-    if (t.isSequenceExpression(init)) init = init.expressions[init.expressions.length - 1]
-    if (!t.isFunctionExpression(init) && !t.isArrowFunctionExpression(init)) return
-    let body = init.body
-    if (!t.isBlockStatement(body)) return
-    for (let stmt of body.body) {
-      if (!t.isReturnStatement(stmt) || !stmt.argument) continue
-      let arg = stmt.argument
-      if (!t.isNewExpression(arg)) continue
-      if (!t.isIdentifier(arg.callee, { name: typeName })) continue
-      if (arg.arguments.length !== 1 || !t.isArrayExpression(arg.arguments[0])) continue
-      if (arg.arguments[0].elements.length !== arrLen) continue
-      match = generate(init).code
-      return p.stop()
+  traverse(cleanAst, { noScope: true,
+    FunctionExpression(p) {
+      if (match) return p.stop()
+      if (checkFnBody(p.node, typeName, arrLen)) {
+        match = generate(p.node).code
+        return p.stop()
+      }
+    },
+    ArrowFunctionExpression(p) {
+      if (match) return p.stop()
+      if (checkFnBody(p.node, typeName, arrLen)) {
+        match = generate(p.node).code
+        return p.stop()
+      }
     }
-  }})
+  })
   return match
 }
 
