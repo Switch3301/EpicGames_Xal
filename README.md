@@ -1,5 +1,6 @@
 # fire
 
+Please Join : https://discord.gg/jsreversing
 Contact on Telegram or Discord : `switch3301`
 
 reverse-engineered xal token generator for epic games talon sdk.
